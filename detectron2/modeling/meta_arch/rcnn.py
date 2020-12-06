@@ -77,7 +77,6 @@ class GeneralizedRCNN(nn.Module):
             "backbone": backbone,
             "proposal_generator": build_proposal_generator(cfg, backbone.output_shape()),
             "roi_heads": build_roi_heads(cfg, backbone.output_shape()),
-            "cls_heads": build_roi_head_cls(cfg, backbone.output_shape()),
             "input_format": cfg.INPUT.FORMAT,
             "vis_period": cfg.VIS_PERIOD,
             "pixel_mean": cfg.MODEL.PIXEL_MEAN,

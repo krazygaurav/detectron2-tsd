@@ -26,7 +26,7 @@ __all__ = [
     "BasicStem",
     "ResNet",
     "make_stage",
-    "build_resnet_backbone",
+    "build_resnet_backbone"
 ]
 
 

@@ -285,8 +285,8 @@ _C.MODEL.ROI_HEADS.PROPOSAL_APPEND_GT = True
 # ---------------------------------------------------------------------------- #
 # Box Head
 # ---------------------------------------------------------------------------- #
-_C.MODEL.ROI_CLS_HEAD = CN()
-_C.MODEL.ROI_BOX_HEAD.NAME = "FastRCNNConvFCHeadCls"
+# _C.MODEL.ROI_CLS_HEAD = CN()
+# _C.MODEL.ROI_BOX_HEAD.NAME = "FastRCNNConvFCHeadCls"
 
 # ---------------------------------------------------------------------------- #
 # Box Head

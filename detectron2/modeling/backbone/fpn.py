@@ -10,7 +10,11 @@ from .backbone import Backbone
 from .build import BACKBONE_REGISTRY
 from .resnet import build_resnet_backbone
 
-__all__ = ["build_resnet_fpn_backbone", "build_retinanet_resnet_fpn_backbone", "FPN"]
+__all__ = [
+  "build_resnet_fpn_backbone", 
+  "build_retinanet_resnet_fpn_backbone", 
+  "FPN"
+  ]
 
 
 class FPN(Backbone):

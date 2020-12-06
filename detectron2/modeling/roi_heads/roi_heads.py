@@ -540,8 +540,9 @@ class StandardROIHeads(ROIHeads):
         self.box_head = box_head
 
         # Gaurav
-        self.cls_head = FastRCNNConvFCHeadCls(ShapeSpec(channels=256, \
-          height=7, width=7), conv_dims=[], fc_dims=[1024, 1024])
+        # self.cls_head = FastRCNNConvFCHeadCls(ShapeSpec(channels=256, \
+        #   height=7, width=7), conv_dims=[], fc_dims=[1024, 1024])
+        
         self.box_predictor = box_predictor
 
         self.mask_on = mask_in_features is not None
@@ -606,18 +607,18 @@ class StandardROIHeads(ROIHeads):
         box_predictor = FastRCNNOutputLayers(cfg, box_head.output_shape)
         
         # Gaurav
-        cls_head = build_cls_head(
-            cfg, ShapeSpec(channels=in_channels, height=pooler_resolution, width=pooler_resolution)
-        )
-        cls_predictor = FastRCNNOutputLayersCls(cfg, cls_head.output_shape)
+        # cls_head = build_cls_head(
+        #     cfg, ShapeSpec(channels=in_channels, height=pooler_resolution, width=pooler_resolution)
+        # )
+        # cls_predictor = FastRCNNOutputLayersCls(cfg, cls_head.output_shape)
 
         return {
             "box_in_features": in_features,
             "box_pooler": box_pooler,
             "box_head": box_head,
-            "cls_head": cls_head,
+            # "cls_head": cls_head,
             "box_predictor": box_predictor,
-            "cls_predictor": cls_predictor,
+            # "cls_predictor": cls_predictor,
         }
 
     @classmethod
