@@ -14,7 +14,7 @@ from detectron2.utils.logger import log_first_n
 from ..backbone import Backbone, build_backbone
 from ..postprocessing import detector_postprocess
 from ..proposal_generator import build_proposal_generator
-from ..roi_heads import build_roi_heads, build_roi_head_cls
+from ..roi_heads import build_roi_heads
 from .build import META_ARCH_REGISTRY
 
 __all__ = ["GeneralizedRCNN", "ProposalNetwork"]
