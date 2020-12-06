@@ -18,7 +18,6 @@ from .roi_heads import (
     Res5ROIHeads,
     StandardROIHeads,
     build_roi_heads,
-    build_roi_head_cls,
     select_foreground_proposals,
 )
 from .rotated_fast_rcnn import RROIHeads

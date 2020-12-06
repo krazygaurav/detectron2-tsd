@@ -17,7 +17,7 @@ from ..matcher import Matcher
 from ..poolers import ROIPooler
 from ..proposal_generator.proposal_utils import add_ground_truth_to_proposals
 from ..sampling import subsample_labels
-from .box_head import build_box_head, FastRCNNConvFCHeadCls, build_cls_head
+from .box_head import build_box_head, FastRCNNConvFCHeadCls
 from .fast_rcnn import FastRCNNOutputLayers, FastRCNNOutputLayersCls
 from .keypoint_head import build_keypoint_head
 from .mask_head import build_mask_head
@@ -503,7 +503,9 @@ class StandardROIHeads(ROIHeads):
         box_in_features: List[str],
         box_pooler: ROIPooler,
         box_head: nn.Module,
+        box_cls: nn.Module,
         box_predictor: nn.Module,
+        cls_predictor: nn.Module,
         mask_in_features: Optional[List[str]] = None,
         mask_pooler: Optional[ROIPooler] = None,
         mask_head: Optional[nn.Module] = None,
@@ -538,12 +540,15 @@ class StandardROIHeads(ROIHeads):
         self.in_features = self.box_in_features = box_in_features
         self.box_pooler = box_pooler
         self.box_head = box_head
+        self.box_predictor = box_predictor
 
         # Gaurav
         # self.cls_head = FastRCNNConvFCHeadCls(ShapeSpec(channels=256, \
         #   height=7, width=7), conv_dims=[], fc_dims=[1024, 1024])
+        # cls_predictor = FastRCNNOutputLayersCls(cfg, cls_head.output_shape)
+        self.cls_head = cls_head
+        self.cls_predictor = cls_predictor
         
-        self.box_predictor = box_predictor
 
         self.mask_on = mask_in_features is not None
         if self.mask_on:
