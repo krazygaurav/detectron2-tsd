@@ -17,8 +17,8 @@ from ..matcher import Matcher
 from ..poolers import ROIPooler
 from ..proposal_generator.proposal_utils import add_ground_truth_to_proposals
 from ..sampling import subsample_labels
-from .box_head import build_box_head, FastRCNNConvFCHeadCls
-from .fast_rcnn import FastRCNNOutputLayers, FastRCNNOutputLayersCls
+from .box_head import build_box_head
+from .fast_rcnn import FastRCNNOutputLayers
 from .keypoint_head import build_keypoint_head
 from .mask_head import build_mask_head
 
@@ -41,8 +41,6 @@ def build_roi_heads(cfg, input_shape):
     Build ROIHeads defined by `cfg.MODEL.ROI_HEADS.NAME`.
     """
     name = cfg.MODEL.ROI_HEADS.NAME
-    print(name)
-    print(ROI_HEADS_REGISTRY.get(name))
     return ROI_HEADS_REGISTRY.get(name)(cfg, input_shape)
 
 def build_roi_head_cls(cfg, input_shape):
@@ -503,7 +501,7 @@ class StandardROIHeads(ROIHeads):
         box_in_features: List[str],
         box_pooler: ROIPooler,
         box_head: nn.Module,
-        box_cls: nn.Module,
+        cls_head: nn.Module,
         box_predictor: nn.Module,
         cls_predictor: nn.Module,
         mask_in_features: Optional[List[str]] = None,
