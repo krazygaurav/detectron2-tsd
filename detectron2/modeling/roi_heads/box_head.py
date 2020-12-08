@@ -215,4 +215,4 @@ def build_cls_head(cfg, input_shape):
     Build a box head defined by `cfg.MODEL.ROI_CLS_HEAD.NAME`.
     """
     name = cfg.MODEL.ROI_CLS_HEAD.NAME
-    return ROI_BOX_HEAD_REGISTRY.get(name)(cfg, input_shape)
+    return ROI_CLS_HEAD_REGISTRY.get(name)(cfg, input_shape)
