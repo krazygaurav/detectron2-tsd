@@ -9,15 +9,16 @@ from detectron2.config import configurable
 from detectron2.layers import Conv2d, Linear, ShapeSpec, get_norm
 from detectron2.utils.registry import Registry
 
-__all__ = ["FastRCNNConvFCHead", "build_box_head", "ROI_BOX_HEAD_REGISTRY"]
+__all__ = ["FastRCNNConvFCHead", "build_box_head", "ROI_BOX_HEAD_REGISTRY", \
+    "FastRCNNConvFCHeadCls", "build_cls_head", "ROI_CLS_HEAD_REGISTRY"]
 
 ROI_BOX_HEAD_REGISTRY = Registry("ROI_BOX_HEAD")
 ROI_BOX_HEAD_REGISTRY.__doc__ = """
 Registry for box heads, which make box predictions from per-region features.
-
 The registered object will be called with `obj(cfg, input_shape)`.
 """
 
+ROI_CLS_HEAD_REGISTRY = Registry("ROI_CLS_HEAD")
 
 # To get torchscript support, we make the head a subclass of `nn.Sequential`.
 # Therefore, to add new layers in this head class, please make sure they are
@@ -118,7 +119,7 @@ def build_box_head(cfg, input_shape):
 
 
 # Gaurav
-@ROI_BOX_HEAD_REGISTRY.register()
+@ROI_CLS_HEAD_REGISTRY.register()
 class FastRCNNConvFCHeadCls(nn.Sequential):
     """
     A head with several 3x3 conv layers (each followed by norm & relu) and then
@@ -211,8 +212,7 @@ class FastRCNNConvFCHeadCls(nn.Sequential):
 
 def build_cls_head(cfg, input_shape):
     """
-    Build a box head defined by `cfg.MODEL.ROI_BOX_HEAD.NAME`.
+    Build a box head defined by `cfg.MODEL.ROI_CLS_HEAD.NAME`.
     """
     name = cfg.MODEL.ROI_CLS_HEAD.NAME
-    # LATER: name = cfg.MODEL.ROI_CLS_HEAD.NAME
     return ROI_BOX_HEAD_REGISTRY.get(name)(cfg, input_shape)

@@ -43,12 +43,12 @@ def build_roi_heads(cfg, input_shape):
     name = cfg.MODEL.ROI_HEADS.NAME
     return ROI_HEADS_REGISTRY.get(name)(cfg, input_shape)
 
-def build_roi_head_cls(cfg, input_shape):
-    """
-    Build ROIHeads defined by `cfg.MODEL.ROI_HEADS.NAME`.
-    """
-    name = cfg.MODEL.ROI_HEADS.NAME
-    return ROI_HEADS_REGISTRY.get(name)(cfg, input_shape)
+# def build_roi_head_cls(cfg, input_shape):
+#     """
+#     Build ROIHeads defined by `cfg.MODEL.ROI_HEADS.NAME`.
+#     """
+#     name = cfg.MODEL.ROI_HEADS.NAME
+#     return ROI_HEADS_REGISTRY.get(name)(cfg, input_shape)
 
 
 def select_foreground_proposals(
@@ -610,18 +610,18 @@ class StandardROIHeads(ROIHeads):
         box_predictor = FastRCNNOutputLayers(cfg, box_head.output_shape)
         
         # Gaurav
-        # cls_head = build_cls_head(
-        #     cfg, ShapeSpec(channels=in_channels, height=pooler_resolution, width=pooler_resolution)
-        # )
-        # cls_predictor = FastRCNNOutputLayersCls(cfg, cls_head.output_shape)
+        cls_head = build_cls_head(
+            cfg, ShapeSpec(channels=in_channels, height=pooler_resolution, width=pooler_resolution)
+        )
+        cls_predictor = FastRCNNOutputLayersCls(cfg, cls_head.output_shape)
 
         return {
             "box_in_features": in_features,
             "box_pooler": box_pooler,
             "box_head": box_head,
-            # "cls_head": cls_head,
+            "cls_head": cls_head,
             "box_predictor": box_predictor,
-            # "cls_predictor": cls_predictor,
+            "cls_predictor": cls_predictor,
         }
 
     @classmethod
@@ -777,7 +777,8 @@ class StandardROIHeads(ROIHeads):
 
         if self.training:
             assert not torch.jit.is_scripting()
-            losses = self.box_predictor.losses(predictions, proposals)
+            box_losses = self.box_predictor.losses(predictions, proposals)
+            cls_losses = self.cls_predictor.losses(predictions, proposals)
             # proposals is modified in-place below, so losses must be computed first.
             if self.train_on_pred_boxes:
                 with torch.no_grad():
@@ -786,10 +787,13 @@ class StandardROIHeads(ROIHeads):
                     )
                     for proposals_per_image, pred_boxes_per_image in zip(proposals, pred_boxes):
                         proposals_per_image.proposal_boxes = Boxes(pred_boxes_per_image)
-            return losses
+            # TODO: Merge box_losses and cls_losses somehow
+            return box_losses
         else:
-            pred_instances, _ = self.box_predictor.inference(predictions, proposals)
-            return pred_instances
+            box_pred_instances, box_ = self.box_predictor.inference(predictions, proposals)
+            cls_pred_instances, cls_ = self.cls_predictor.inference(predictions, proposals)
+            # TODO: Merge predictions from box and classification somehow
+            return box_pred_instances
 
     def _forward_mask(self, features: Dict[str, torch.Tensor], instances: List[Instances]):
         """
