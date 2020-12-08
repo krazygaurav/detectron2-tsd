@@ -282,11 +282,45 @@ _C.MODEL.ROI_HEADS.NMS_THRESH_TEST = 0.5
 _C.MODEL.ROI_HEADS.PROPOSAL_APPEND_GT = True
 
 
+'''
+Author: Gaurav Singhal
+'''
 # ---------------------------------------------------------------------------- #
-# Box Head
+# Classifiction Box Head
 # ---------------------------------------------------------------------------- #
-# _C.MODEL.ROI_CLS_HEAD = CN()
-# _C.MODEL.ROI_BOX_HEAD.NAME = "FastRCNNConvFCHeadCls"
+_C.MODEL.ROI_CLS_HEAD = CN()
+# C4 don't use head name option
+# Options for non-C4 models: FastRCNNConvFCHeadCls,
+_C.MODEL.ROI_CLS_HEAD.NAME = ""
+# Options are: "smooth_l1", "giou"
+_C.MODEL.ROI_CLS_HEAD.BBOX_REG_LOSS_TYPE = "smooth_l1"
+# The final scaling coefficient on the box regression loss, used to balance the magnitude of its
+# gradients with other losses in the model. See also `MODEL.ROI_KEYPOINT_HEAD.LOSS_WEIGHT`.
+_C.MODEL.ROI_CLS_HEAD.BBOX_REG_LOSS_WEIGHT = 1.0
+# Default weights on (dx, dy, dw, dh) for normalizing bbox regression targets
+# These are empirically chosen to approximately lead to unit variance targets
+_C.MODEL.ROI_CLS_HEAD.BBOX_REG_WEIGHTS = (10.0, 10.0, 5.0, 5.0)
+# The transition point from L1 to L2 loss. Set to 0.0 to make the loss simply L1.
+_C.MODEL.ROI_CLS_HEAD.SMOOTH_L1_BETA = 0.0
+_C.MODEL.ROI_CLS_HEAD.POOLER_RESOLUTION = 14
+_C.MODEL.ROI_CLS_HEAD.POOLER_SAMPLING_RATIO = 0
+# Type of pooling operation applied to the incoming feature map for each RoI
+_C.MODEL.ROI_CLS_HEAD.POOLER_TYPE = "ROIAlignV2"
+
+_C.MODEL.ROI_CLS_HEAD.NUM_FC = 0
+# Hidden layer dimension for FC layers in the RoI box head
+_C.MODEL.ROI_CLS_HEAD.FC_DIM = 1024
+_C.MODEL.ROI_CLS_HEAD.NUM_CONV = 0
+# Channel dimension for Conv layers in the RoI box head
+_C.MODEL.ROI_CLS_HEAD.CONV_DIM = 256
+# Normalization method for the convolution layers.
+# Options: "" (no norm), "GN", "SyncBN".
+_C.MODEL.ROI_CLS_HEAD.NORM = ""
+# Whether to use class agnostic for bbox regression
+_C.MODEL.ROI_CLS_HEAD.CLS_AGNOSTIC_BBOX_REG = False
+# If true, RoI heads use bounding boxes predicted by the box head rather than proposal boxes.
+_C.MODEL.ROI_CLS_HEAD.TRAIN_ON_PRED_BOXES = False
+
 
 # ---------------------------------------------------------------------------- #
 # Box Head

@@ -17,8 +17,8 @@ from ..matcher import Matcher
 from ..poolers import ROIPooler
 from ..proposal_generator.proposal_utils import add_ground_truth_to_proposals
 from ..sampling import subsample_labels
-from .box_head import build_box_head
-from .fast_rcnn import FastRCNNOutputLayers
+from .box_head import build_box_head, build_cls_head
+from .fast_rcnn import FastRCNNOutputLayers, FastRCNNOutputLayersCls
 from .keypoint_head import build_keypoint_head
 from .mask_head import build_mask_head
 
@@ -42,13 +42,6 @@ def build_roi_heads(cfg, input_shape):
     """
     name = cfg.MODEL.ROI_HEADS.NAME
     return ROI_HEADS_REGISTRY.get(name)(cfg, input_shape)
-
-# def build_roi_head_cls(cfg, input_shape):
-#     """
-#     Build ROIHeads defined by `cfg.MODEL.ROI_HEADS.NAME`.
-#     """
-#     name = cfg.MODEL.ROI_HEADS.NAME
-#     return ROI_HEADS_REGISTRY.get(name)(cfg, input_shape)
 
 
 def select_foreground_proposals(
