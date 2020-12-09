@@ -787,8 +787,8 @@ class StandardROIHeads(ROIHeads):
             
             # TODO: Merge box_losses and cls_losses somehow
             losses = {
-                'loss_cls': cls_losses['loss_cls'],
-                'loss_box_reg': box_losses['loss_box_reg']
+                'loss_cls': cls_losses['loss_cls'] + 0.2*box_losses['loss_cls'],
+                'loss_box_reg': box_losses['loss_box_reg'] + 0.2*cls_losses['loss_box_reg']
             }
             return losses
         else:

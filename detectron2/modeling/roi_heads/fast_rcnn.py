@@ -323,7 +323,7 @@ class FastRCNNOutputs:
     they are used to query information about the head predictions.
     """
 
-    def losses(self, head_type):
+    def losses(self, head_type=None):
         """
         Compute the default losses for box head in Fast(er) R-CNN,
         with softmax cross entropy loss and smooth L1 loss.
@@ -331,6 +331,7 @@ class FastRCNNOutputs:
         Returns:
             A dict of losses (scalar tensors) containing keys "loss_cls" and "loss_box_reg".
         """
+        # Reg and Cls is not in use
         if head_type == "reg":
             return {"loss_box_reg": self.box_reg_loss()}
         elif head_type == "cls":
@@ -488,7 +489,7 @@ class FastRCNNOutputLayers(nn.Module):
             proposals,
             self.smooth_l1_beta,
             self.box_reg_loss_type,
-        ).losses("reg")
+        ).losses()
         return {k: v * self.loss_weight.get(k, 1.0) for k, v in losses.items()}
 
     def inference(self, predictions: Tuple[torch.Tensor, torch.Tensor], proposals: List[Instances]):
@@ -724,7 +725,7 @@ class FastRCNNOutputLayersCls(nn.Module):
             proposals,
             self.smooth_l1_beta,
             self.box_reg_loss_type,
-        ).losses("cls")
+        ).losses()
         return {k: v * self.loss_weight.get(k, 1.0) for k, v in losses.items()}
 
     def inference(self, predictions: Tuple[torch.Tensor, torch.Tensor], proposals: List[Instances]):
