@@ -730,7 +730,7 @@ class StandardROIHeads(ROIHeads):
 
         Args:
             features: same as in `forward()`
-            instances (list[Instances]): instances to predict other outputs. Expect the keys
+            instances: (list[Instances]): instances to predict other outputs. Expect the keys
                 "pred_boxes" and "pred_classes" to exist.
 
         Returns:
@@ -738,6 +738,8 @@ class StandardROIHeads(ROIHeads):
                 the same `Instances` objects, with extra
                 fields such as `pred_masks` or `pred_keypoints`.
         """
+        # Gaurav: instances are coming in tuple, so getting the first value of it
+        instances = instances[0]
         assert not self.training
         assert instances[0].has("pred_boxes") and instances[0].has("pred_classes")
 

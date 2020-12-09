@@ -337,7 +337,7 @@ class FastRCNNOutputs:
         elif head_type == "cls":
             return {"loss_cls": self.softmax_cross_entropy_loss()}
         else:
-            print("XXXX: Combined loss not calculated")
+            # print("XXXX: Combined loss not calculated")
             return {"loss_cls": self.softmax_cross_entropy_loss(), "loss_box_reg": self.box_reg_loss()}
 
     def predict_boxes(self):
