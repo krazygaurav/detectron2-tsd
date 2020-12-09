@@ -323,7 +323,7 @@ class FastRCNNOutputs:
     they are used to query information about the head predictions.
     """
 
-    def losses(self):
+    def losses(self, head_type):
         """
         Compute the default losses for box head in Fast(er) R-CNN,
         with softmax cross entropy loss and smooth L1 loss.
@@ -331,7 +331,13 @@ class FastRCNNOutputs:
         Returns:
             A dict of losses (scalar tensors) containing keys "loss_cls" and "loss_box_reg".
         """
-        return {"loss_cls": self.softmax_cross_entropy_loss(), "loss_box_reg": self.box_reg_loss()}
+        if head_type == "reg":
+            return {"loss_box_reg": self.box_reg_loss()}
+        elif head_type == "cls":
+            return {"loss_cls": self.softmax_cross_entropy_loss()}
+        else:
+            print("XXXX: Combined loss not calculated")
+            return {"loss_cls": self.softmax_cross_entropy_loss(), "loss_box_reg": self.box_reg_loss()}
 
     def predict_boxes(self):
         """
@@ -482,7 +488,7 @@ class FastRCNNOutputLayers(nn.Module):
             proposals,
             self.smooth_l1_beta,
             self.box_reg_loss_type,
-        ).losses()
+        ).losses("reg")
         return {k: v * self.loss_weight.get(k, 1.0) for k, v in losses.items()}
 
     def inference(self, predictions: Tuple[torch.Tensor, torch.Tensor], proposals: List[Instances]):
@@ -497,7 +503,8 @@ class FastRCNNOutputLayers(nn.Module):
             list[Tensor]: same as `fast_rcnn_inference`.
         """
         boxes = self.predict_boxes(predictions, proposals)
-        scores = self.predict_probs(predictions, proposals)
+        # scores = self.predict_probs(predictions, proposals)
+        scores = None
         image_shapes = [x.image_size for x in proposals]
         return fast_rcnn_inference(
             boxes,
@@ -717,7 +724,7 @@ class FastRCNNOutputLayersCls(nn.Module):
             proposals,
             self.smooth_l1_beta,
             self.box_reg_loss_type,
-        ).losses()
+        ).losses("cls")
         return {k: v * self.loss_weight.get(k, 1.0) for k, v in losses.items()}
 
     def inference(self, predictions: Tuple[torch.Tensor, torch.Tensor], proposals: List[Instances]):
@@ -731,7 +738,8 @@ class FastRCNNOutputLayersCls(nn.Module):
             list[Instances]: same as `fast_rcnn_inference`.
             list[Tensor]: same as `fast_rcnn_inference`.
         """
-        boxes = self.predict_boxes(predictions, proposals)
+        # boxes = self.predict_boxes(predictions, proposals)
+        boxes = None
         scores = self.predict_probs(predictions, proposals)
         image_shapes = [x.image_size for x in proposals]
         return fast_rcnn_inference(

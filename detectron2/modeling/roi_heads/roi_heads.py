@@ -18,7 +18,7 @@ from ..poolers import ROIPooler
 from ..proposal_generator.proposal_utils import add_ground_truth_to_proposals
 from ..sampling import subsample_labels
 from .box_head import build_box_head, build_cls_head
-from .fast_rcnn import FastRCNNOutputLayers, FastRCNNOutputLayersCls
+from .fast_rcnn import FastRCNNOutputLayers, FastRCNNOutputLayersCls, fast_rcnn_inference
 from .keypoint_head import build_keypoint_head
 from .mask_head import build_mask_head
 
@@ -765,14 +765,18 @@ class StandardROIHeads(ROIHeads):
         features = [features[f] for f in self.box_in_features]
         box_features = self.box_pooler(features, [x.proposal_boxes for x in proposals])
         box_features = self.box_head(box_features)
-        predictions = self.box_predictor(box_features)
+        box_predictions = self.box_predictor(box_features)
+        cls_predictions = self.cls_predictor(box_features)
         del box_features
 
         if self.training:
             assert not torch.jit.is_scripting()
-            box_losses = self.box_predictor.losses(predictions, proposals)
-            cls_losses = self.cls_predictor.losses(predictions, proposals)
+            # reg head_type for regression losses
+            box_losses = self.box_predictor.losses(box_predictions, proposals)
+            # cls head_type for classification losses
+            cls_losses = self.cls_predictor.losses(cls_predictions, proposals)
             # proposals is modified in-place below, so losses must be computed first.
+            # Not using the below functionality
             if self.train_on_pred_boxes:
                 with torch.no_grad():
                     pred_boxes = self.box_predictor.predict_boxes_for_gt_classes(
@@ -780,13 +784,29 @@ class StandardROIHeads(ROIHeads):
                     )
                     for proposals_per_image, pred_boxes_per_image in zip(proposals, pred_boxes):
                         proposals_per_image.proposal_boxes = Boxes(pred_boxes_per_image)
+            
             # TODO: Merge box_losses and cls_losses somehow
-            return box_losses
+            losses = {
+                'loss_cls': cls_losses['loss_cls'],
+                'loss_box_reg': box_losses['loss_box_reg']
+            }
+            return losses
         else:
-            box_pred_instances, box_ = self.box_predictor.inference(predictions, proposals)
-            cls_pred_instances, cls_ = self.cls_predictor.inference(predictions, proposals)
-            # TODO: Merge predictions from box and classification somehow
-            return box_pred_instances
+            boxes = self.box_predictor.predict_boxes(box_predictions, proposals)
+            scores = self.cls_predictor.predict_probs(cls_predictions, proposals)
+            image_shapes = [x.image_size for x in proposals]
+
+            return fast_rcnn_inference(
+                boxes,
+                scores,
+                image_shapes,
+                self.box_predictor.test_score_thresh,
+                self.box_predictor.test_nms_thresh,
+                self.box_predictor.test_topk_per_image,
+            )
+            # box_pred_instances, box_ = self.box_predictor.inference(box_predictions, proposals)
+            # cls_pred_instances, cls_ = self.cls_predictor.inference(cls_predictions, proposals)
+            # return box_pred_instances
 
     def _forward_mask(self, features: Dict[str, torch.Tensor], instances: List[Instances]):
         """
