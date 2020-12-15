@@ -31,6 +31,7 @@ __all__ = [
     "Resize",
     "ResizeShortestEdge",
     "RandomCrop_CategoryAreaConstraint",
+    "RandomSharpness"
 ]
 
 
@@ -492,4 +493,6 @@ class RandomSharpness(Augmentation):
 
     def get_transform(self, image):
         sharpen_image = cv2.filter2D(image, -1, self.sharp_kernel)
-        return sharpen_image
+        return BlendTransform(
+            src_image=sharpen_image, src_weight=1.0, dst_weight=1.0
+        )
