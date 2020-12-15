@@ -5,6 +5,7 @@ Implement many useful :class:`Augmentation`.
 """
 import numpy as np
 import sys
+import cv2
 from fvcore.transforms.transform import (
     BlendTransform,
     CropTransform,
@@ -477,3 +478,18 @@ class RandomLighting(Augmentation):
         return BlendTransform(
             src_image=self.eigen_vecs.dot(weights * self.eigen_vals), src_weight=1.0, dst_weight=1.0
         )
+
+
+'''
+@Author: Gaurav Singhal
+Augmentation: Sharpness kernel
+'''
+class RandomSharpness(Augmentation):
+    def __init__(self, sharp_kernel=[[0,-1,0], [-1,5,-1], [0,-1,0]]):
+        super().__init__()
+        self._init(locals())
+        self.sharp_kernel = np.array(sharp_kernel)
+
+    def get_transform(self, image):
+        sharpen_image = cv2.filter2D(image, -1, self.sharp_kernel)
+        return sharpen_image
