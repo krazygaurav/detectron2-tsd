@@ -587,6 +587,14 @@ def build_augmentation(cfg, is_train):
                 vertical=cfg.INPUT.RANDOM_FLIP == "vertical",
             )
         )
+
+    if is_train:
+        augmentation.append(T.RandomLighting(0.7))
+        augmentation.append(T.RandomRotation(angle=[-15,15]))
+        augmentation.append(T.RandomRotation(angle=[-90,90], sample_style='choice'))
+        augmentation.append(T.RandomCrop(crop_type="relative_range", crop_size=(0.8, 0.8)))
+        augmentation.append(T.RandomCrop(crop_type="relative_range", crop_size=(0.4, 0.6)))
+        #augmentation.append(T.RandomExtent(scale_range=[0.5,2], shift_range=[0,0]))
     return augmentation
 
 
